@@ -1,3 +1,20 @@
+USE [master]
+GO
+
+/****** Object:  Database [ServiceBrokerTest]    Script Date: 08/09/2013 20:58:54 ******/
+IF  EXISTS (SELECT name FROM sys.databases WHERE name = N'ServiceBrokerTest')
+  DROP DATABASE [ServiceBrokerTest]
+GO
+
+CREATE DATABASE ServiceBrokerTest
+GO
+
+USE ServiceBrokerTest
+GO
+
+ALTER DATABASE [ServiceBrokerTest] SET  ENABLE_BROKER 
+GO
+
 IF  EXISTS (SELECT * FROM sys.services WHERE name = N'SBSendService')
   DROP SERVICE [SBSendService]
 GO

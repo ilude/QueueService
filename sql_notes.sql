@@ -30,3 +30,9 @@ select
     ),1,1,'') as PRIMARY_KEYS
 from INFORMATION_SCHEMA.KEY_COLUMN_USAGE C
 group by C.TABLE_NAME 
+
+--infinite loop
+WHILE 1=1
+BEGIN
+SELECT 'This will go forever'
+END
