@@ -83,30 +83,34 @@ GO
 CREATE TRIGGER [dbo].[trgAudit_tableName] 
 ON  TestTable 
 FOR INSERT, UPDATE, DELETE
-AS 
+AS  
 BEGIN
-    SET NOCOUNT ON;
-    DECLARE @Xml XML,
-    @Type varchar(6) 
-    if exists (select * from inserted)
+  SET NOCOUNT ON;
+  DECLARE 
+	@Xml XML,
+	@Type varchar(6) 
+
+  if exists (select * from inserted)
   BEGIN
-    SET @Xml = (
-            SELECT * FROM Inserted AS TestTable
-            FOR XML AUTO
-        )
-    if exists (select * from deleted)
-      select @Type = 'UPDATE'
-    else
-      select @Type = 'INSERT'
+	if exists (select * from deleted)
+	  select @Type = 'UPDATE'
+	else
+	  select @Type = 'INSERT'
   END
   else
   BEGIN
-    SET @Xml = (
-            SELECT * FROM Deleted AS TestTable
-            FOR XML AUTO
-        )
-    select @Type = 'DELETE'
+	select @Type = 'DELETE'
   END
+
+  SET @Xml = 
+  '
+  <EVENT_MESSAGE>
+	<TABLE>trgAudit_tableName</TABLE>
+	<TYPE>' + @Type + '</TYPE>
+	<INSERT>' + ISNULL((select Col1, Col2, Col3 from inserted for xml raw), '') + '</INSERT>
+	<DELETE>' + ISNULL((select Col1, Col2, Col3 from deleted for xml raw), '') + '</DELETE>
+  </EVENT_MESSAGE>
+  ';
   
   DECLARE @SBDialog uniqueidentifier
   
@@ -122,7 +126,7 @@ BEGIN
   
   END CONVERSATION @SBDialog WITH CLEANUP;
   
-  INSERT INTO Audit (DMLStatement, AuditedData) VALUES(@Type, @Xml)
+  --INSERT INTO Audit (DMLStatement, AuditedData) VALUES(@Type, @Xml)
 END
 GO
 
